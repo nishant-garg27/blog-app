@@ -15,7 +15,7 @@ const UserSchema = new Schema({
         trim: true, 
     },
     salt: {
-        type: String, // FIX: Removed required: true so validation passes
+        type: String, 
     },
     password: {
         type: String,
@@ -32,20 +32,21 @@ const UserSchema = new Schema({
     },
 }, { timestamps: true });
 
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', function () {
     const user = this;
 
-    if (!user.isModified("password")) return next();
+    if (!user.isModified("password")) {
+        return;
+    }
 
     const salt = randomBytes(16).toString('hex');
+
     const hashedPass = createHmac('sha256', salt)
         .update(user.password)
         .digest('hex');
 
     user.salt = salt;
     user.password = hashedPass;
-
-    next();
 });
 
 const User = model('user', UserSchema);
