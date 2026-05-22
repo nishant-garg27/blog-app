@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-const { createHmac, randomBytes, hash } = require('crypto');
+const { createHmac, randomBytes } = require('crypto');
 const { error } = require("console");
 
 const UserSchema = new Schema({
@@ -57,10 +57,10 @@ UserSchema.static('matchPassword',async function (email, password) {
     const hashedPass= user.password;
 
     const userhash = createHmac('sha256', salt)
-    .update(user.password)
+    .update(password)
     .digest('hex');
     if(hashedPass !== userhash) throw new Error('Password Incorrect');
-    return {... user , password: undefined, salt: undefined};
+    return user
 })
 
 const User = model('user', UserSchema);
